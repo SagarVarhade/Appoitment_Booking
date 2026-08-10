@@ -311,49 +311,48 @@
 
     <script>
         // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE:
-        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyvw7v9UR-PqRVrwCGv-vxqQMxXpimEvyFxEvTmDsLRifKjQO_ME7WWL4z1AHj7ar7j/exec";
+        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzS2dzYI50peizRB-wbINEnrcHvB25nEchrbp8cS52IRtxoeL1Ce5c_hxat_R8DF0MF/exec";
 
         document.getElementById("appointmentForm").addEventListener("submit", function(e) {
-            e.preventDefault();
+    e.preventDefault();
 
-            const submitBtn = document.querySelector(".btn-submit");
-            submitBtn.disabled = true;
-            submitBtn.innerText = "Appointments Booking...";
+    const submitBtn = document.querySelector(".btn-submit");
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Booking Appointment...";
 
-            const payload = {
-                name: document.getElementById("patientName").value,
-                age: document.getElementById("patientAge").value,
-                gender: document.getElementById("patientGender").value,
-                phone: document.getElementById("patientPhone").value,
-                doctor: document.getElementById("doctorSelect").value,
-                date: document.getElementById("visitDate").value,
-                time: document.getElementById("visitTime").value
-            };
+    // Build query params
+    const params = new URLSearchParams({
+        name: document.getElementById("patientName").value,
+        age: document.getElementById("patientAge").value,
+        gender: document.getElementById("patientGender").value,
+        phone: document.getElementById("patientPhone").value,
+        doctor: document.getElementById("doctorSelect").value,
+        date: document.getElementById("visitDate").value,
+        time: document.getElementById("visitTime").value
+    });
 
-            fetch(GOOGLE_SHEET_URL, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
-            .then(data => {
-                const alertBox = document.getElementById("alertBox");
-                alertBox.innerText = "✅ Appointment saved.";
-                alertBox.style.display = "block";
-                setTimeout(() => { alertBox.style.display = "none"; }, 3000);
+    // Send via GET request to safely bypass CORS and ensure parameter parsing
+    fetch(`${GOOGLE_SHEET_URL}?${params.toString()}`, {
+        method: "GET"
+    })
+    .then(() => {
+        const alertBox = document.getElementById("alertBox");
+        alertBox.innerText = "✅ Appointment saved successfully!";
+        alertBox.style.display = "block";
 
-                document.getElementById("appointmentForm").reset();
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit';
-            })
-            .catch(err => {
-                console.error("Error:", err);
-                alert("Saved to Google Sheet!");
-                document.getElementById("appointmentForm").reset();
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit';
-            });
-        });
+        setTimeout(() => { alertBox.style.display = "none"; }, 4000);
+
+        document.getElementById("appointmentForm").reset();
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit';
+    })
+    .catch(err => {
+        console.error("Submission error:", err);
+        alert("Failed to submit. Please try again.");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit';
+    });
+});
     </script>
 </body>
 </html>
