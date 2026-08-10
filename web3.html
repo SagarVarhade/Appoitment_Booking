@@ -313,14 +313,14 @@
         // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE:
         const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzS2dzYI50peizRB-wbINEnrcHvB25nEchrbp8cS52IRtxoeL1Ce5c_hxat_R8DF0MF/exec";
 
-        document.getElementById("appointmentForm").addEventListener("submit", function(e) {
+      document.getElementById("appointmentForm").addEventListener("submit", function(e) {
     e.preventDefault();
 
     const submitBtn = document.querySelector(".btn-submit");
     submitBtn.disabled = true;
     submitBtn.innerText = "Booking Appointment...";
 
-    // Build query params
+    // Build URL query parameters
     const params = new URLSearchParams({
         name: document.getElementById("patientName").value,
         age: document.getElementById("patientAge").value,
@@ -331,11 +331,15 @@
         time: document.getElementById("visitTime").value
     });
 
-    // Send via GET request to safely bypass CORS and ensure parameter parsing
-    fetch(`${GOOGLE_SHEET_URL}?${params.toString()}`, {
-        method: "GET"
+    const fullUrl = `${GOOGLE_SHEET_URL}?${params.toString()}`;
+
+    // Send request using mode: 'no-cors' to bypass Vercel cross-origin blocks
+    fetch(fullUrl, {
+        method: "GET",
+        mode: "no-cors"
     })
     .then(() => {
+        // Successful submission feedback
         const alertBox = document.getElementById("alertBox");
         alertBox.innerText = "✅ Appointment saved successfully!";
         alertBox.style.display = "block";
@@ -348,7 +352,7 @@
     })
     .catch(err => {
         console.error("Submission error:", err);
-        alert("Failed to submit. Please try again.");
+        alert("Failed to submit. Please check network connection.");
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit';
     });
